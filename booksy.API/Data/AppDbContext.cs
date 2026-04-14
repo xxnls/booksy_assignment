@@ -21,15 +21,16 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
         builder.Entity<Hardware>().HasQueryFilter(h => h.DateDeleted == null);
         builder.Entity<RentalRecord>().HasQueryFilter(r => r.DateDeleted == null);
 
+        // seed roles
         builder.Entity<IdentityRole<int>>().HasData(
             new IdentityRole<int> { Id = 1, Name = "User", NormalizedName = "USER", ConcurrencyStamp = "1" },
             new IdentityRole<int> { Id = 2, Name = "Admin", NormalizedName = "ADMIN", ConcurrencyStamp = "2" }
         );
 
-        builder.Entity<Hardware>()
-               .HasMany(h => h.RentalRecords)
-               .WithOne(r => r.Hardware)
-               .HasForeignKey(r => r.HardwareId)
+        builder.Entity<RentalRecord>()
+               .HasOne(r => r.Hardware)
+               .WithOne(h => h.RentalRecord)
+               .HasForeignKey<RentalRecord>(r => r.HardwareId)
                .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<User>()
@@ -45,7 +46,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
                .IsUnique();
     }
 
-    // auto timestamping and soft delete
+    // auto timestamping
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         var baseEntityEntries = ChangeTracker.Entries<BaseEntity>();

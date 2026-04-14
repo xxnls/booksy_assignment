@@ -8,6 +8,8 @@ using booksy.API.Services.Interfaces;
 using booksy.API.Services;
 using booksy.API.Models.Entities;
 using booksy.API.Mappings;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddFluentValidationAutoValidation()
+                .AddFluentValidationClientsideAdapters()
+                .AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddAuthentication(options =>
 {

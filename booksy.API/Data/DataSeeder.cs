@@ -15,6 +15,19 @@ namespace booksy.API.Data
             var hardwareService = serviceProvider.GetRequiredService<IHardwareService>();
             var userService = serviceProvider.GetRequiredService<IUserService>();
 
+            // 0. Ensure default Admin exists
+            var adminEmail = "admin@admin.com";
+            var existingAdmin = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail && u.DateDeleted == null);
+            if (existingAdmin == null)
+            {
+                await userService.CreateAsync(new CreateUserDto
+                {
+                    Email = adminEmail,
+                    Password = "Password123!",
+                    Role = UserRole.Admin
+                });
+            }
+
             // 1. Clear RentalRecords and Hardware tables
             await context.Database.ExecuteSqlRawAsync("DELETE FROM RentalRecords");
             await context.Database.ExecuteSqlRawAsync("DELETE FROM Hardware");

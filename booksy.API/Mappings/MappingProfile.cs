@@ -20,7 +20,7 @@ namespace booksy.API.Mappings
             // Hardware mappings
             CreateMap<Hardware, HardwareDto>()
                 .ForMember(dest => dest.ActiveRental,
-                    opt => opt.MapFrom(src => src.RentalRecords.FirstOrDefault()));
+                    opt => opt.MapFrom(src => src.RentalRecord));
             CreateMap<CreateHardwareDto, Hardware>();
             CreateMap<UpdateHardwareDto, Hardware>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
