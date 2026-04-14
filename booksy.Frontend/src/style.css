@@ -1,0 +1,40 @@
+:root {
+  /* Grayscale Minimalist Wireframe Palette */
+  --bg-color: #f9f9f9;
+  --border-color: #cccccc;
+  --gray-light: #eeeeee;
+  --gray-dark: #333333;
+  --text-main: #222222;
+  --text-muted: #777777;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reset default Vite styles */
+#app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  display: block;
+  min-height: auto;
+  border: none;
+}
+
+/* Global utility classes based on prompts */
+input, button, select, textarea {
+  font-family: inherit;
+}
+
+input:focus, button:focus {
+  outline: 1px solid var(--gray-dark);
+  outline-offset: 2px;
+}

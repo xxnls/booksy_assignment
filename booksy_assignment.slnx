@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="fe_prompts.txt" />
+  </Folder>
   <Project Path="booksy.API/booksy.API.csproj" />
 </Solution>

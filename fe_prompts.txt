@@ -1,0 +1,8 @@
+Prompt 1: Login Page (Focus on Validation)
+Prompt: "Create a low-fidelity wireframe for a clean web login page. Elements: A centered card with a placeholder for a logo, 'Welcome back' heading, an email input field with a label 'Email (company domain only)', a password input field, and a large 'Login' button. Include a red error message below the email field saying 'Invalid domain. Please use @booksy.com'. Minimalist, grayscale, wireframe style."
+
+Prompt 2: Main Dashboard (AI-Native Hardware List)
+Prompt: "Design a low-fidelity web dashboard wireframe for a hardware management system. Left sidebar with navigation links: 'Hardware List', 'My Rentals', 'Admin Panel', and a 'Logout' button at the bottom. Main content area: At the top, a prominent search bar with the label 'Ask AI...'. Below, a data table with columns: 'Device Name', 'Brand', 'Date Added', 'Status' (shown as a badge), and a 'Rent' action button. Use wireframe components, grayscale, simple borders."
+
+Prompt 3: Admin Command Center (Management View)
+Prompt: "Design a wireframe for an Admin Management view in a SaaS app. Layout: Sidebar navigation. Main area: A header 'Hardware Management' with a 'Add New Device' primary button. A list or table view of hardware items. Each row must have 'Edit', 'Send to Repair', and 'Delete' icons/buttons. Include a simple modal popup overlay for 'Add New Device' with input fields for 'Name', 'Serial Number', and 'Category'. Wireframe style, clean and functional."
