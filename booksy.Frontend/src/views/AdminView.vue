@@ -6,6 +6,7 @@ import { HardwareService } from '../services/hardware.service';
 
 const hardwareList = ref([]);
 const isModalOpen = ref(false);
+const itemToEdit = ref(null);
 
 const fetchHardware = async () => {
   try {
@@ -20,14 +21,31 @@ const handleDeviceSaved = () => {
   fetchHardware();
 };
 
+const handleAdd = () => {
+  itemToEdit.value = null;
+  isModalOpen.value = true;
+};
+
+const handleEdit = (item) => {
+  itemToEdit.value = item;
+  isModalOpen.value = true;
+};
+
+const handleRepair = async (item) => {
+  if(confirm(`Send ${item.name} to repair?`)) {
+    try {
+      await HardwareService.update(item.id, { status: 'UnderMaintenance' });
+      await fetchHardware();
+    } catch(e) {}
+  }
+};
+
 const handleDelete = async (id) => {
     if(confirm('Are you sure you want to delete this device?')) {
         try {
             await HardwareService.delete(id);
             await fetchHardware();
-        } catch(e) {
-            alert('Failed to delete device. It might be currently rented.');
-        }
+        } catch(e) {}
     }
 }
 
@@ -43,7 +61,7 @@ onMounted(() => {
     <main class="content">
       <div class="header">
         <h1>Hardware Management</h1>
-        <button class="btn-primary" @click="isModalOpen = true">Add New Device</button>
+        <button class="btn-primary" @click="handleAdd">Add New Device</button>
       </div>
 
       <div class="table-container">
@@ -64,8 +82,8 @@ onMounted(() => {
               <td>{{ item.notes || '-' }}</td>
               <td>{{ item.status }}</td>
               <td class="actions-cell">
-                <button class="icon-btn" title="Edit">[ Edit ]</button>
-                <button class="icon-btn" title="Send to Repair">[ Repair ]</button>
+                <button class="icon-btn" title="Edit" @click="handleEdit(item)">[ Edit ]</button>
+                <button class="icon-btn" title="Send to Repair" @click="handleRepair(item)">[ Repair ]</button>
                 <button class="icon-btn text-danger" title="Delete" @click="handleDelete(item.id)">[ Delete ]</button>
               </td>
             </tr>
@@ -78,6 +96,7 @@ onMounted(() => {
 
       <AddDeviceModal 
         :isOpen="isModalOpen" 
+        :editItem="itemToEdit"
         @close="isModalOpen = false"
         @saved="handleDeviceSaved"
       />

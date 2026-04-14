@@ -12,7 +12,10 @@ const handleLogin = async () => {
   error.value = '';
   
   try {
-    const response = await UserService.login({ email: email.value, password: password.value });
+    const response = await UserService.login(
+      { email: email.value, password: password.value },
+      { hideErrorPopup: true }
+    );
     if (response && response.token) {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
@@ -28,21 +31,20 @@ const handleLogin = async () => {
   <div class="login-container">
     <div class="login-card">
       <div class="logo-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"></path>
         </svg>
       </div>
       <h1>Welcome back</h1>
       
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email">Email (company domain only)</label>
+          <label for="email">Email</label>
           <input 
             type="email" 
             id="email" 
             v-model="email" 
-            placeholder="name@booksy.com" 
+            placeholder="name@company.com" 
             required 
           />
           <span v-if="error" class="error-message">{{ error }}</span>

@@ -27,10 +27,31 @@ export const api = {
                  return { ok: true };
             }
 
-            const data = await response.json().catch(() => null);
+            const text = await response.text();
+            let data = null;
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
+            }
 
             if (!response.ok) {
-                const errorMessage = data?.title || data?.error || data || 'An API error occurred';
+                let errorMessage = 'An API error occurred';
+                if (typeof data === 'string') {
+                    errorMessage = data;
+                } else if (data && typeof data === 'object') {
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).flat().join('\n');
+                    } else {
+                        errorMessage = data.title || data.error || data.detail || JSON.stringify(data);
+                    }
+                }
+                
+                if (!options.hideErrorPopup) {
+                    alert(`Error: ${errorMessage}`);
+                }
                 throw new Error(errorMessage);
             }
 

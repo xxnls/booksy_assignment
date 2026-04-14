@@ -1,28 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
-import { HardwareService } from '../services/hardware.service';
 import { RentalService } from '../services/rental.service';
 
-const hardwareList = ref([]);
-const searchQuery = ref('');
+const rentalsList = ref([]);
 const currentUser = ref(null);
 
-const fetchHardware = async () => {
+const fetchRentals = async () => {
   try {
-    hardwareList.value = await HardwareService.getAll();
+    const allRentals = await RentalService.getAll();
+    if (currentUser.value) {
+      rentalsList.value = allRentals.filter(r => r.userId === currentUser.value.id);
+    }
   } catch (error) {
-    console.error('Failed to fetch hardware:', error);
-  }
-};
-
-const handleRent = async (hardwareId) => {
-  try {
-    await RentalService.rent({ hardwareId, userId: currentUser.value.id });
-    alert('Device rented successfully.');
-    await fetchHardware();
-  } catch (error) {
-    // Error is handled globally by api.js
+    console.error('Failed to fetch rentals:', error);
   }
 };
 
@@ -30,7 +21,7 @@ const handleReturn = async (rentalId) => {
   try {
     await RentalService.returnItem(rentalId);
     alert('Device returned successfully.');
-    await fetchHardware();
+    await fetchRentals();
   } catch (error) {
     // Error is handled globally by api.js
   }
@@ -43,7 +34,7 @@ onMounted(() => {
       currentUser.value = JSON.parse(userStr);
     }
   } catch(e) {}
-  fetchHardware();
+  fetchRentals();
 });
 </script>
 
@@ -52,40 +43,36 @@ onMounted(() => {
     <Sidebar />
     
     <main class="content">
-      <div class="search-container">
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          class="search-bar" 
-          placeholder="Ask AI..."
-        />
+      <div class="header">
+        <h1>My Rentals</h1>
       </div>
 
       <div class="table-container">
         <table>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Device Name</th>
-              <th>Brand</th>
-              <th>Date Added</th>
+              <th>Rented At</th>
+              <th>Returned At</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in hardwareList" :key="item.id">
-              <td>{{ item.name }}</td>
-              <td>{{ item.brand }}</td>
-              <td>{{ new Date(item.dateCreated).toLocaleDateString() }}</td>
-              <td><span class="badge">{{ item.status }}</span></td>
+            <tr v-for="item in rentalsList" :key="item.id">
+              <td>#{{ item.id }}</td>
+              <td>{{ item.hardwareName }}</td>
+              <td>{{ new Date(item.rentedAt).toLocaleDateString() }}</td>
+              <td>{{ item.returnedAt ? new Date(item.returnedAt).toLocaleDateString() : '-' }}</td>
+              <td><span class="badge">{{ item.returnedAt ? 'Returned' : 'Active' }}</span></td>
               <td class="actions-cell">
-                <button v-if="item.status === 'Available'" class="btn-action" @click="handleRent(item.id)">Rent</button>
-                <button v-else-if="item.status === 'InUse' && item.rentalRecord?.userId === currentUser?.id" class="btn-action" @click="handleReturn(item.rentalRecord.id)">Return</button>
-                <span v-else class="text-muted">Unavailable</span>
+                <button v-if="!item.returnedAt" class="btn-action" @click="handleReturn(item.id)">Return</button>
+                <span v-else class="text-muted">Returned</span>
               </td>
             </tr>
-            <tr v-if="hardwareList.length === 0">
-                <td colspan="5" class="empty-state">No hardware available or failed to load.</td>
+            <tr v-if="rentalsList.length === 0">
+                <td colspan="6" class="empty-state">You have no rental history.</td>
             </tr>
           </tbody>
         </table>
@@ -108,17 +95,13 @@ onMounted(() => {
   background: var(--bg-color);
 }
 
-.search-container {
+.header {
   margin-bottom: 30px;
 }
 
-.search-bar {
-  width: 100%;
-  padding: 15px 20px;
-  font-size: 18px;
-  border: 2px solid var(--border-color);
-  background: white;
-  box-sizing: border-box;
+h1 {
+  margin: 0;
+  font-size: 24px;
 }
 
 .table-container {

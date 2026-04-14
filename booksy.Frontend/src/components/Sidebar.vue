@@ -1,7 +1,19 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const isAdmin = ref(false);
+
+onMounted(() => {
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      isAdmin.value = user.role === 'Admin';
+    }
+  } catch (e) {}
+});
 
 const handleLogout = () => {
   localStorage.removeItem('token');
@@ -13,15 +25,14 @@ const handleLogout = () => {
 <template>
   <aside class="sidebar">
     <div class="logo-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"></path>
       </svg>
     </div>
     <nav>
       <router-link to="/" class="nav-link" active-class="active">Hardware List</router-link>
       <router-link to="/rentals" class="nav-link" active-class="active">My Rentals</router-link>
-      <router-link to="/admin" class="nav-link" active-class="active">Admin Panel</router-link>
+      <router-link v-if="isAdmin" to="/admin" class="nav-link" active-class="active">Admin Panel</router-link>
     </nav>
     <button @click="handleLogout" class="btn-logout">Logout</button>
   </aside>

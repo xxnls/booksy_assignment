@@ -1,10 +1,11 @@
 import { api } from './api';
 
 export const UserService = {
-    async login(loginDto) {
+    async login(loginDto, options = {}) {
         return api.fetch('/users/login', {
             method: 'POST',
             body: JSON.stringify(loginDto),
+            ...options
         });
     },
 

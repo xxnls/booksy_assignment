@@ -1,9 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { HardwareService } from '../services/hardware.service';
 
 const props = defineProps({
-  isOpen: Boolean
+  isOpen: Boolean,
+  editItem: Object
 });
 
 const emit = defineEmits(['close', 'saved']);
@@ -14,14 +15,31 @@ const form = ref({
   notes: ''
 });
 
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    if (props.editItem) {
+      form.value = {
+        name: props.editItem.name,
+        brand: props.editItem.brand,
+        notes: props.editItem.notes || ''
+      };
+    } else {
+      form.value = { name: '', brand: '', notes: '' };
+    }
+  }
+});
+
 const save = async () => {
   try {
-    await HardwareService.create(form.value);
+    if (props.editItem) {
+      await HardwareService.update(props.editItem.id, form.value);
+    } else {
+      await HardwareService.create(form.value);
+    }
     emit('saved');
     form.value = { name: '', brand: '', notes: '' }; // reset
   } catch (error) {
-    console.error('Failed to create device:', error);
-    alert('Failed to save. Check console.');
+    // Error is handled by global popup
   }
 };
 </script>
@@ -29,7 +47,7 @@ const save = async () => {
 <template>
   <div v-if="isOpen" class="modal-overlay" @click="emit('close')">
     <div class="modal-content" @click.stop>
-      <h2>Add New Device</h2>
+      <h2>{{ editItem ? 'Edit Device' : 'Add New Device' }}</h2>
       <form @submit.prevent="save">
         <div class="form-group">
           <label>Name</label>
