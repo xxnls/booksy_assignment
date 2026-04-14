@@ -1,0 +1,37 @@
+# AI Prompt Log
+
+## Prompt 1
+**Prompt:** setup a sqlite database, install an orm for it (preferrably ef core if its possible)
+**Summary:** Request to install SQLite and an ORM (Entity Framework Core) and configure it in the .NET API project.
+
+## Prompt 2
+**Prompt:** can you make a text file (ai.txt) in which you will save all the prompts i will give you, including this one and the one before. also include a summary for each one
+**Summary:** Request to create a file named `ai.txt` to track all future user prompts and their corresponding summaries, starting with the first two.
+
+## Prompt 3
+**Prompt:** create a BaseEntity for all entities, there should be an Id, DateCreated, DateModified, DateDeleted properties, all entites should inherit from this BaseEntity
+**Summary:** Request to create an abstract base class (`BaseEntity`) containing auditing and identity properties (`Id`, `DateCreated`, `DateModified`, `DateDeleted`) for all database entities.
+
+## Prompt 4
+**Prompt:** use int for id, not a GUID
+**Summary:** Request to change the `Id` property type in `BaseEntity` from `Guid` to `int`.
+
+## Prompt 5
+**Prompt:** create proper data annotations for all entities (Models/Entities), think also about validation when you will create them
+**Summary:** Request to add comprehensive data annotations for validation and database schema mapping to all entity classes in the `Models/Entities` directory, ensuring `DateModified` in `BaseEntity` is nullable.
+
+## Prompt 6
+**Prompt:** Modify AppDbContext to implement changes that were made to entities, then make a migration
+**Summary:** Request to update `AppDbContext` with `DbSet` properties for the new entities and generate the initial Entity Framework Core migration.
+
+## Prompt 7
+**Prompt:** Create services and controllers for Entities
+**Summary:** Request to implement the Business Logic and API layer for all entities. This involved creating DTOs, service interfaces, service implementations (injecting `AppDbContext`), REST controllers, and registering the services in `Program.cs`.
+
+## Prompt 8
+**Prompt:** Install automapper, create mapping profiles and modify code where its necessear
+**Summary:** Request to integrate AutoMapper. This involved installing the necessary NuGet packages, creating a `MappingProfile`, registering AutoMapper in `Program.cs`, and refactoring the service implementations to use `IMapper` instead of manual mapping.
+
+## Prompt 9
+**Prompt:** add swagger to the project
+**Summary:** Installed `Swashbuckle.AspNetCore`, enabled `AddEndpointsApiExplorer`, and configured `UseSwagger()` and `UseSwaggerUI()` in `Program.cs` to provide an interactive API documentation interface.
