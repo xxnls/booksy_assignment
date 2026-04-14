@@ -1,11 +1,14 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
 import { HardwareService } from '../services/hardware.service';
 import { RentalService } from '../services/rental.service';
 
 const hardwareList = ref([]);
 const searchQuery = ref('');
+const statusFilter = ref('');
+const sortKey = ref('name');
+const sortOrder = ref(1);
 const currentUser = ref(null);
 
 const fetchHardware = async () => {
@@ -45,6 +48,48 @@ onMounted(() => {
   } catch(e) {}
   fetchHardware();
 });
+
+const filteredAndSortedHardware = computed(() => {
+  let result = hardwareList.value;
+
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase();
+    result = result.filter(item => 
+      item.name.toLowerCase().includes(q) || 
+      item.brand.toLowerCase().includes(q)
+    );
+  }
+
+  if (statusFilter.value) {
+    result = result.filter(item => item.status === statusFilter.value);
+  }
+
+  result = result.slice().sort((a, b) => {
+    let valA = a[sortKey.value];
+    let valB = b[sortKey.value];
+
+    if (valA === null || valA === undefined) valA = '';
+    if (valB === null || valB === undefined) valB = '';
+
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+
+    if (valA < valB) return -1 * sortOrder.value;
+    if (valA > valB) return 1 * sortOrder.value;
+    return 0;
+  });
+
+  return result;
+});
+
+const toggleSort = (key) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value * -1;
+  } else {
+    sortKey.value = key;
+    sortOrder.value = 1;
+  }
+};
 </script>
 
 <template>
@@ -57,23 +102,30 @@ onMounted(() => {
           type="text" 
           v-model="searchQuery" 
           class="search-bar" 
-          placeholder="Ask AI..."
+          placeholder="Search devices..."
         />
+        <select v-model="statusFilter" class="status-filter">
+          <option value="">All Statuses</option>
+          <option value="Available">Available</option>
+          <option value="In Use">In Use</option>
+          <option value="Repair">Repair</option>
+          <option value="Unknown">Unknown</option>
+        </select>
       </div>
 
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>Device Name</th>
-              <th>Brand</th>
-              <th>Date Added</th>
-              <th>Status</th>
+              <th @click="toggleSort('name')" class="sortable">Device Name <span v-if="sortKey === 'name'">{{ sortOrder === 1 ? '▲' : '▼' }}</span></th>
+              <th @click="toggleSort('brand')" class="sortable">Brand <span v-if="sortKey === 'brand'">{{ sortOrder === 1 ? '▲' : '▼' }}</span></th>
+              <th @click="toggleSort('dateCreated')" class="sortable">Date Added <span v-if="sortKey === 'dateCreated'">{{ sortOrder === 1 ? '▲' : '▼' }}</span></th>
+              <th @click="toggleSort('status')" class="sortable">Status <span v-if="sortKey === 'status'">{{ sortOrder === 1 ? '▲' : '▼' }}</span></th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in hardwareList" :key="item.id">
+            <tr v-for="item in filteredAndSortedHardware" :key="item.id">
               <td>{{ item.name }}</td>
               <td>{{ item.brand }}</td>
               <td>{{ new Date(item.dateCreated).toLocaleDateString() }}</td>
@@ -84,8 +136,8 @@ onMounted(() => {
                 <span v-else class="text-muted">Unavailable</span>
               </td>
             </tr>
-            <tr v-if="hardwareList.length === 0">
-                <td colspan="5" class="empty-state">No hardware available or failed to load.</td>
+            <tr v-if="filteredAndSortedHardware.length === 0">
+                <td colspan="5" class="empty-state">No hardware found matching your criteria.</td>
             </tr>
           </tbody>
         </table>
@@ -109,16 +161,27 @@ onMounted(() => {
 }
 
 .search-container {
+  display: flex;
+  gap: 15px;
   margin-bottom: 30px;
 }
 
 .search-bar {
-  width: 100%;
+  flex-grow: 1;
   padding: 15px 20px;
   font-size: 18px;
   border: 2px solid var(--border-color);
   background: white;
   box-sizing: border-box;
+}
+
+.status-filter {
+  width: 200px;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid var(--border-color);
+  background: white;
+  cursor: pointer;
 }
 
 .table-container {
@@ -141,6 +204,15 @@ th {
   background: var(--gray-light);
   font-weight: normal;
   color: var(--text-muted);
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.sortable:hover {
+  color: var(--text-main);
+  background: var(--border-color);
 }
 
 .badge {
