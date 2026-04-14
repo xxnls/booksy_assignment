@@ -85,4 +85,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "data.txt");
+    await DataSeeder.SeedAsync(scope.ServiceProvider, dataPath);
+}
+
 app.Run();
