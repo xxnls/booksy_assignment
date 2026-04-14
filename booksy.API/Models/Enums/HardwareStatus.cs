@@ -2,9 +2,9 @@
 {
     public enum HardwareStatus
     {
-        Available,
-        InUse,
-        Repair,
-        Unknown
+        Available = 0,
+        InUse = 1,
+        Repair = 2,
+        Unknown = 3
     }
 }

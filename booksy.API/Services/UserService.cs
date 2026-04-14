@@ -40,7 +40,7 @@ namespace booksy.API.Services
         public async Task<UserDto> CreateAsync(CreateUserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
-            user.PasswordHash = userDto.Password; // Map manually for now as it's named differently
+            user.PasswordHash = userDto.Password;
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

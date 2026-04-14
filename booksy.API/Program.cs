@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using booksy.API.Data;
 using booksy.API.Services.Interfaces;
 using booksy.API.Services;
+using booksy.API.Models.Entities;
+using booksy.API.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +12,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddIdentity<User, IdentityRole<int>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHardwareService, HardwareService>();
 builder.Services.AddScoped<IRentalRecordService, RentalRecordService>();
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
