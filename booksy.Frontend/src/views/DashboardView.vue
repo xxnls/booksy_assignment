@@ -80,7 +80,7 @@ onMounted(() => {
               <td><span class="badge">{{ item.status }}</span></td>
               <td class="actions-cell">
                 <button v-if="item.status === 'Available'" class="action-btn edit-btn" @click="handleRent(item.id)">Rent</button>
-                <button v-else-if="item.status === 'InUse' && item.activeRental?.userId === currentUser?.id" class="action-btn repair-btn" @click="handleReturn(item.activeRental.id)">Return</button>
+                <button v-else-if="(item.status === 'In Use' || item.status === 'InUse') && item.activeRental?.userId === currentUser?.id" class="action-btn edit-btn" @click="handleReturn(item.activeRental.id)">Return</button>
                 <span v-else class="text-muted">Unavailable</span>
               </td>
             </tr>

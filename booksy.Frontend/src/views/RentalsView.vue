@@ -67,7 +67,7 @@ onMounted(() => {
               <td>{{ item.returnedAt ? new Date(item.returnedAt).toLocaleDateString() : '-' }}</td>
               <td><span class="badge">{{ item.returnedAt ? 'Returned' : 'Active' }}</span></td>
               <td class="actions-cell">
-                <button v-if="!item.returnedAt" class="action-btn repair-btn" @click="handleReturn(item.id)">Return</button>
+                <button v-if="!item.returnedAt" class="action-btn edit-btn" @click="handleReturn(item.id)">Return</button>
                 <span v-else class="text-muted">Returned</span>
               </td>
             </tr>
@@ -139,32 +139,30 @@ th {
   align-items: center;
 }
 
-.btn-action {
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px solid var(--gray-dark);
+.action-btn {
+  padding: 4px 10px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
   cursor: pointer;
+  color: var(--text-main);
+  font-size: 12px;
+  transition: all 0.2s ease;
 }
-.btn-action:hover {
+
+.action-btn:hover {
   background: var(--gray-light);
+  border-color: var(--gray-dark);
 }
 
-.text-muted {
-  color: var(--text-muted);
-  font-size: 14px;
-  display: inline-block;
-  padding: 6px 12px;
-  border: 1px solid transparent;
-  box-sizing: border-box;
+.action-btn.edit-btn:hover {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
 }
 
-.empty-state {
-    text-align: center;
-    padding: 30px;
-    color: var(--text-muted);
-}
-
-.repair-btn {
+.action-btn.repair-btn:hover {
+  background: #fef7e0;
   border-color: #f29900;
   color: #f29900;
 }

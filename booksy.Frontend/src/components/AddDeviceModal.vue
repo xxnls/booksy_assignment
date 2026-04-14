@@ -81,9 +81,9 @@ const save = async () => {
             <label>Status</label>
             <select v-model="form.status" required>
               <option value="Available">Available</option>
-              <option value="InUse">In Use</option>
-              <option value="UnderMaintenance">Under Maintenance</option>
-              <option value="Retired">Retired</option>
+              <option value="In Use">In Use</option>
+              <option value="Repair">Repair</option>
+              <option value="Unknown">Unknown</option>
             </select>
           </div>
         </div>

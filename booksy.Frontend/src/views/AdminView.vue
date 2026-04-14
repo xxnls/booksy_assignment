@@ -34,7 +34,7 @@ const handleEdit = (item) => {
 const handleRepair = async (item) => {
   if(confirm(`Send ${item.name} to repair?`)) {
     try {
-      await HardwareService.update(item.id, { status: 'UnderMaintenance' });
+      await HardwareService.update(item.id, { status: 'Repair' });
       await fetchHardware();
     } catch(e) {}
   }
