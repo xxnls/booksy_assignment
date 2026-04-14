@@ -25,6 +25,6 @@ namespace booksy.API.Models.Entities
         public string? History { get; set; }
 
 
-        public ICollection<RentalRecord> RentalHistory { get; set; } = [];
+        public ICollection<RentalRecord> RentalRecords { get; set; } = [];
     }
 }

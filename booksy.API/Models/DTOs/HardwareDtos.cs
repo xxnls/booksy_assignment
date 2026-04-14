@@ -11,8 +11,10 @@ namespace booksy.API.Models.DTOs
         public HardwareStatus Status { get; set; }
         public string? Notes { get; set; }
         public string? History { get; set; }
-        public RentalRecordDto? RentalRecord { get; set; }
         public DateTime DateCreated { get; set; }
+
+        // single active rental for display
+        public RentalRecordDto? ActiveRental { get; set; }
     }
 
     public class CreateHardwareDto

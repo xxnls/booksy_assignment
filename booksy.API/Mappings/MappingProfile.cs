@@ -10,12 +10,17 @@ namespace booksy.API.Mappings
         {
             // User mappings
             CreateMap<User, UserDto>();
-            CreateMap<CreateUserDto, User>();
+            CreateMap<CreateUserDto, User>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
             CreateMap<UpdateUserDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Hardware mappings
-            CreateMap<Hardware, HardwareDto>();
+            CreateMap<Hardware, HardwareDto>()
+                .ForMember(dest => dest.ActiveRental,
+                    opt => opt.MapFrom(src => src.RentalRecords.FirstOrDefault()));
             CreateMap<CreateHardwareDto, Hardware>();
             CreateMap<UpdateHardwareDto, Hardware>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

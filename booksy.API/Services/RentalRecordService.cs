@@ -2,6 +2,7 @@ using AutoMapper;
 using booksy.API.Data;
 using booksy.API.Models.DTOs;
 using booksy.API.Models.Entities;
+using booksy.API.Models.Enums;
 using booksy.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,18 +42,49 @@ namespace booksy.API.Services
             return _mapper.Map<RentalRecordDto>(r);
         }
 
-        public async Task<RentalRecordDto> CreateAsync(CreateRentalRecordDto rentalDto)
+        public async Task<RentalRecordDto?> CreateAsync(CreateRentalRecordDto dto)
         {
-            var rental = _mapper.Map<RentalRecord>(rentalDto);
+            var hardware = await _context.Hardware
+                .FirstOrDefaultAsync(h => h.Id == dto.HardwareId);
 
+            if (hardware is null) return null;
+            if (hardware.Status != HardwareStatus.Available) return null;
+
+            var userExists = await _context.Users
+                .AnyAsync(u => u.Id == dto.UserId && u.DateDeleted == null);
+
+            if (!userExists) return null;
+
+            var rental = new RentalRecord
+            {
+                HardwareId = dto.HardwareId,
+                UserId = dto.UserId,
+                RentedAt = DateTime.UtcNow
+            };
+
+            hardware.Status = HardwareStatus.InUse;
             _context.RentalRecords.Add(rental);
             await _context.SaveChangesAsync();
 
-            // Reload to get navigation properties for mapping
             await _context.Entry(rental).Reference(r => r.Hardware).LoadAsync();
             await _context.Entry(rental).Reference(r => r.User).LoadAsync();
 
             return _mapper.Map<RentalRecordDto>(rental);
+        }
+
+        public async Task<bool> ReturnAsync(int rentalId)
+        {
+            var rental = await _context.RentalRecords
+                .Include(r => r.Hardware)
+                .FirstOrDefaultAsync(r => r.Id == rentalId);
+
+            if (rental is null || rental.ReturnedAt is not null) return false;
+
+            rental.ReturnedAt = DateTime.UtcNow;
+            rental.Hardware.Status = HardwareStatus.Available;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> UpdateAsync(int id, UpdateRentalRecordDto rentalDto)
@@ -75,7 +107,8 @@ namespace booksy.API.Services
 
             if (rental == null) return false;
 
-            _context.RentalRecords.Remove(rental);
+            rental.DateDeleted = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             return true;
         }

@@ -18,31 +18,32 @@ namespace booksy.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RentalRecordDto>>> GetAll()
         {
-            var rentals = await _rentalRecordService.GetAllAsync();
-            return Ok(rentals);
+            return Ok(await _rentalRecordService.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<RentalRecordDto>> GetById(int id)
         {
             var rental = await _rentalRecordService.GetByIdAsync(id);
-            if (rental == null) return NotFound();
-            return Ok(rental);
+            return rental is null ? NotFound() : Ok(rental);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<RentalRecordDto>> Create(CreateRentalRecordDto createRentalDto)
+        [HttpPost("rent")]
+        public async Task<ActionResult<RentalRecordDto>> Rent(CreateRentalRecordDto dto)
         {
-            var rental = await _rentalRecordService.CreateAsync(createRentalDto);
+            var rental = await _rentalRecordService.CreateAsync(dto);
+
+            if (rental is null)
+                return BadRequest("Hardware is unavailable or user does not exist.");
+
             return CreatedAtAction(nameof(GetById), new { id = rental.Id }, rental);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateRentalRecordDto updateRentalDto)
+        [HttpPost("return/{id}")]
+        public async Task<IActionResult> Return(int id)
         {
-            var success = await _rentalRecordService.UpdateAsync(id, updateRentalDto);
-            if (!success) return NotFound();
-            return NoContent();
+            var success = await _rentalRecordService.ReturnAsync(id);
+            return success ? NoContent() : NotFound();
         }
 
         [HttpDelete("{id}")]

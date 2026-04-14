@@ -31,9 +31,13 @@ namespace booksy.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserDto>> Create(CreateUserDto createUserDto)
+        public async Task<ActionResult<UserDto>> Create(CreateUserDto dto)
         {
-            var user = await _userService.CreateAsync(createUserDto);
+            var user = await _userService.CreateAsync(dto);
+
+            if (user is null)
+                return BadRequest("Could not create user. Email may already be taken.");
+
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
 
@@ -49,8 +53,7 @@ namespace booksy.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _userService.DeleteAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            return success ? NoContent() : NotFound();
         }
     }
 }

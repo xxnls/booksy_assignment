@@ -58,7 +58,12 @@ namespace booksy.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _hardwareService.DeleteAsync(id);
-            if (!success) return NotFound();
+
+            if (!success)
+            {
+                return BadRequest(new { error = "Cannot remove hardware. It either does not exist or is currently assigned to a rental record." });
+            }
+
             return NoContent();
         }
     }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using booksy.API.Data;
 
@@ -10,9 +11,11 @@ using booksy.API.Data;
 namespace booksy.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260414154041_HardwareRentalOneToOne")]
+    partial class HardwareRentalOneToOne
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
@@ -200,7 +203,7 @@ namespace booksy.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Hardware");
+                    b.ToTable("Hardwares");
                 });
 
             modelBuilder.Entity("booksy.API.Models.Entities.RentalRecord", b =>
@@ -232,11 +235,10 @@ namespace booksy.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("HardwareId")
+                        .IsUnique();
 
-                    b.HasIndex("HardwareId", "ReturnedAt")
-                        .IsUnique()
-                        .HasFilter("\"ReturnedAt\" IS NULL");
+                    b.HasIndex("UserId");
 
                     b.ToTable("RentalRecords");
                 });
@@ -372,15 +374,15 @@ namespace booksy.API.Migrations
             modelBuilder.Entity("booksy.API.Models.Entities.RentalRecord", b =>
                 {
                     b.HasOne("booksy.API.Models.Entities.Hardware", "Hardware")
-                        .WithMany("RentalRecords")
-                        .HasForeignKey("HardwareId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .WithOne("RentalRecord")
+                        .HasForeignKey("booksy.API.Models.Entities.RentalRecord", "HardwareId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("booksy.API.Models.Entities.User", "User")
                         .WithMany("Rentals")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Hardware");
@@ -390,7 +392,7 @@ namespace booksy.API.Migrations
 
             modelBuilder.Entity("booksy.API.Models.Entities.Hardware", b =>
                 {
-                    b.Navigation("RentalRecords");
+                    b.Navigation("RentalRecord");
                 });
 
             modelBuilder.Entity("booksy.API.Models.Entities.User", b =>
