@@ -47,6 +47,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHardwareService, HardwareService>();
 builder.Services.AddScoped<IRentalRecordService, RentalRecordService>();
+builder.Services.AddScoped<IAISearchService, AISearchService>();
 
 builder.Services.AddCors(options =>
 {

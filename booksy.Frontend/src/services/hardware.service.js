@@ -5,6 +5,10 @@ export const HardwareService = {
         return api.fetch('/hardware');
     },
 
+    async aiSearch(query) {
+        return api.fetch(`/hardware/search?q=${encodeURIComponent(query)}`);
+    },
+
     async getById(id) {
         return api.fetch(`/hardware/${id}`);
     },

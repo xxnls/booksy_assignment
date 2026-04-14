@@ -19,6 +19,19 @@ const fetchHardware = async () => {
   }
 };
 
+const handleAISearch = async () => {
+  if (!searchQuery.value) {
+    fetchHardware();
+    return;
+  }
+  
+  try {
+    hardwareList.value = await HardwareService.aiSearch(searchQuery.value);
+  } catch (error) {
+    console.error('AI Search failed:', error);
+  }
+};
+
 const handleRent = async (hardwareId) => {
   try {
     await RentalService.rent({ hardwareId, userId: currentUser.value.id });
@@ -52,7 +65,9 @@ onMounted(() => {
 const filteredAndSortedHardware = computed(() => {
   let result = hardwareList.value;
 
-  if (searchQuery.value) {
+  if (searchQuery.value && !searchQuery.value.includes(' ')) {
+    // Simple local filter only if it doesn't look like a complex query
+    // Complex queries should use the "Ask AI" button
     const q = searchQuery.value.toLowerCase();
     result = result.filter(item => 
       item.name.toLowerCase().includes(q) || 
@@ -102,8 +117,10 @@ const toggleSort = (key) => {
           type="text" 
           v-model="searchQuery" 
           class="search-bar" 
-          placeholder="Search devices..."
+          placeholder="Ask AI (e.g. 'I need to test a mobile app')..."
+          @keyup.enter="handleAISearch"
         />
+        <button class="action-btn ai-btn" @click="handleAISearch">Ask AI</button>
         <select v-model="statusFilter" class="status-filter">
           <option value="">All Statuses</option>
           <option value="Available">Available</option>
@@ -173,6 +190,20 @@ const toggleSort = (key) => {
   border: 2px solid var(--border-color);
   background: white;
   box-sizing: border-box;
+}
+
+.ai-btn {
+  padding: 0 25px;
+  height: 56px;
+  font-size: 16px;
+  background: var(--gray-dark);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.ai-btn:hover {
+  background: black;
 }
 
 .status-filter {

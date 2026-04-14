@@ -9,10 +9,12 @@ namespace booksy.API.Controllers
     public class HardwareController : ControllerBase
     {
         private readonly IHardwareService _hardwareService;
+        private readonly IAISearchService _aiSearchService;
 
-        public HardwareController(IHardwareService hardwareService)
+        public HardwareController(IHardwareService hardwareService, IAISearchService aiSearchService)
         {
             _hardwareService = hardwareService;
+            _aiSearchService = aiSearchService;
         }
 
         [HttpGet]
@@ -20,6 +22,25 @@ namespace booksy.API.Controllers
         {
             var hardware = await _hardwareService.GetAllAsync();
             return Ok(hardware);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<HardwareDto>>> AISearch([FromQuery] string q)
+        {
+            if (string.IsNullOrWhiteSpace(q)) return await GetAll();
+
+            var allHardware = await _hardwareService.GetAllAsync();
+            var relevantIds = await _aiSearchService.SearchHardwareIdsAsync(q, allHardware);
+
+            if (!relevantIds.Any()) return Ok(Enumerable.Empty<HardwareDto>());
+
+            // Return items in the order of relevance returned by AI
+            var results = relevantIds
+                .Select(id => allHardware.FirstOrDefault(h => h.Id == id))
+                .Where(h => h != null)
+                .Cast<HardwareDto>();
+
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
