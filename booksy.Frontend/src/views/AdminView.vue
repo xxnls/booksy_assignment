@@ -71,7 +71,7 @@ onMounted(() => {
               <th>ID</th>
               <th>Device Name</th>
               <th>Brand</th>
-              <th>Category/Notes</th>
+              <th>Notes</th>
               <th>Purchase Date</th>
               <th>Date Added</th>
               <th>History</th>
@@ -89,7 +89,7 @@ onMounted(() => {
               <td>{{ item.purchaseDate ? new Date(item.purchaseDate).toLocaleDateString() : '-' }}</td>
               <td>{{ new Date(item.dateCreated).toLocaleDateString() }}</td>
               <td>{{ item.history || '-' }}</td>
-              <td>{{ item.rentalRecord?.userEmail || '-' }}</td>
+              <td>{{ item.activeRental?.userEmail || '-' }}</td>
               <td><span class="badge">{{ item.status }}</span></td>
               <td class="actions-cell">
                 <div class="action-buttons">

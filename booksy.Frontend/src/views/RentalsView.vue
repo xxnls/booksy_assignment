@@ -67,7 +67,7 @@ onMounted(() => {
               <td>{{ item.returnedAt ? new Date(item.returnedAt).toLocaleDateString() : '-' }}</td>
               <td><span class="badge">{{ item.returnedAt ? 'Returned' : 'Active' }}</span></td>
               <td class="actions-cell">
-                <button v-if="!item.returnedAt" class="btn-action" @click="handleReturn(item.id)">Return</button>
+                <button v-if="!item.returnedAt" class="action-btn repair-btn" @click="handleReturn(item.id)">Return</button>
                 <span v-else class="text-muted">Returned</span>
               </td>
             </tr>
@@ -147,6 +147,26 @@ th {
 }
 .btn-action:hover {
   background: var(--gray-light);
+}
+
+.text-muted {
+  color: var(--text-muted);
+  font-size: 14px;
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-muted);
+}
+
+.repair-btn {
+  border-color: #f29900;
+  color: #f29900;
 }
 
 .text-muted {

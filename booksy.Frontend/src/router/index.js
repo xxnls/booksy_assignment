@@ -37,6 +37,10 @@ const router = createRouter({
       name: 'rentals',
       component: RentalsView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
     }
   ]
 })

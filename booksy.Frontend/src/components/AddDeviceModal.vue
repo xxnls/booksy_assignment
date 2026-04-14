@@ -89,7 +89,7 @@ const save = async () => {
         </div>
 
         <div class="form-group">
-          <label>Category / Notes</label>
+          <label>Notes</label>
           <input type="text" v-model="form.notes" />
         </div>
         

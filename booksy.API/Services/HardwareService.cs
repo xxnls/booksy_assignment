@@ -80,6 +80,11 @@ namespace booksy.API.Services
 
             _mapper.Map(hardwareDto, hardware);
 
+            if (hardwareDto.Status.HasValue)
+            {
+                hardware.Status = hardwareDto.Status.Value;
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }

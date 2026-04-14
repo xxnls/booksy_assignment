@@ -79,8 +79,8 @@ onMounted(() => {
               <td>{{ new Date(item.dateCreated).toLocaleDateString() }}</td>
               <td><span class="badge">{{ item.status }}</span></td>
               <td class="actions-cell">
-                <button v-if="item.status === 'Available'" class="btn-action" @click="handleRent(item.id)">Rent</button>
-                <button v-else-if="item.status === 'InUse' && item.rentalRecord?.userId === currentUser?.id" class="btn-action" @click="handleReturn(item.rentalRecord.id)">Return</button>
+                <button v-if="item.status === 'Available'" class="action-btn edit-btn" @click="handleRent(item.id)">Rent</button>
+                <button v-else-if="item.status === 'InUse' && item.activeRental?.userId === currentUser?.id" class="action-btn repair-btn" @click="handleReturn(item.activeRental.id)">Return</button>
                 <span v-else class="text-muted">Unavailable</span>
               </td>
             </tr>
@@ -156,14 +156,32 @@ th {
   align-items: center;
 }
 
-.btn-action {
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px solid var(--gray-dark);
+.action-btn {
+  padding: 4px 10px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
   cursor: pointer;
+  color: var(--text-main);
+  font-size: 12px;
+  transition: all 0.2s ease;
 }
-.btn-action:hover {
+
+.action-btn:hover {
   background: var(--gray-light);
+  border-color: var(--gray-dark);
+}
+
+.action-btn.edit-btn:hover {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.action-btn.repair-btn:hover {
+  background: #fef7e0;
+  border-color: #f29900;
+  color: #f29900;
 }
 
 .text-muted {

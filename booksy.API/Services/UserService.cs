@@ -75,9 +75,23 @@ namespace booksy.API.Services
             if (dto.Password is not null)
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                await _userManager.ResetPasswordAsync(user, token, dto.Password);
+                var result = await _userManager.ResetPasswordAsync(user, token, dto.Password);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join("\n", result.Errors.Select(e => e.Description));
+                    throw new Exception(errors);
+                }
             }
 
+            if (dto.Role.HasValue)
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, dto.Role.Value.ToString());
+                user.Role = dto.Role.Value;
+            }
+
+            await _context.SaveChangesAsync();
             return true;
         }
 
