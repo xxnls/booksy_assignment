@@ -6,19 +6,19 @@ namespace booksy.API.Models.Entities
     public class RentalRecord : BaseEntity
     {
 
-        [Required]
+        [Required(ErrorMessage = "Hardware ID is required")]
         public int HardwareId { get; set; }
 
         [ForeignKey(nameof(HardwareId))]
         public Hardware Hardware { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = "User ID is required")]
         public int UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public User User { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = "Rented At date is required")]
         public DateTime RentedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? ReturnedAt { get; set; }

@@ -34,6 +34,15 @@ namespace booksy.API.Controllers
         public async Task<ActionResult<HardwareDto>> Create(CreateHardwareDto createHardwareDto)
         {
             var hardware = await _hardwareService.CreateAsync(createHardwareDto);
+
+            if (hardware == null)
+            {
+                ModelState.AddModelError(nameof(createHardwareDto.AssignedTo),
+                    $"User with email '{createHardwareDto.AssignedTo}' was not found.");
+
+                return ValidationProblem(ModelState);
+            }
+
             return CreatedAtAction(nameof(GetById), new { id = hardware.Id }, hardware);
         }
 

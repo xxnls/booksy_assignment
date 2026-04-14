@@ -10,6 +10,8 @@ namespace booksy.API.Models.DTOs
         public DateOnly? PurchaseDate { get; set; }
         public HardwareStatus Status { get; set; }
         public string? Notes { get; set; }
+        public string? History { get; set; }
+        public RentalRecordDto? RentalRecord { get; set; }
         public DateTime DateCreated { get; set; }
     }
 
@@ -20,6 +22,8 @@ namespace booksy.API.Models.DTOs
         public DateOnly? PurchaseDate { get; set; }
         public HardwareStatus Status { get; set; } = HardwareStatus.Available;
         public string? Notes { get; set; }
+        public string? History { get; set; }
+        public string? AssignedTo { get; set; }
     }
 
     public class UpdateHardwareDto
@@ -29,5 +33,6 @@ namespace booksy.API.Models.DTOs
         public DateOnly? PurchaseDate { get; set; }
         public HardwareStatus? Status { get; set; }
         public string? Notes { get; set; }
+        public string? History { get; set; }
     }
 }

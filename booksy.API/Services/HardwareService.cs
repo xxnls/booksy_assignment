@@ -1,75 +1,104 @@
-using AutoMapper;
-using booksy.API.Data;
-using booksy.API.Models.DTOs;
-using booksy.API.Models.Entities;
-using booksy.API.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+    using AutoMapper;
+    using booksy.API.Data;
+    using booksy.API.Models.DTOs;
+    using booksy.API.Models.Entities;
+    using booksy.API.Services.Interfaces;
+    using Microsoft.EntityFrameworkCore;
 
-namespace booksy.API.Services
-{
-    public class HardwareService : IHardwareService
+    namespace booksy.API.Services
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
-
-        public HardwareService(AppDbContext context, IMapper mapper)
+        public class HardwareService : IHardwareService
         {
-            _context = context;
-            _mapper = mapper;
-        }
+            private readonly AppDbContext _context;
+            private readonly IMapper _mapper;
+            private readonly IRentalRecordService _rentalRecordService;
 
-        public async Task<IEnumerable<HardwareDto>> GetAllAsync()
-        {
-            var hardware = await _context.Hardwares
-                .Where(h => h.DateDeleted == null)
-                .ToListAsync();
+            public HardwareService(AppDbContext context, IMapper mapper, IRentalRecordService rentalRecordService)
+            {
+                _context = context;
+                _mapper = mapper;
+                _rentalRecordService = rentalRecordService;
+            }
 
-            return _mapper.Map<IEnumerable<HardwareDto>>(hardware);
-        }
+            public async Task<IEnumerable<HardwareDto>> GetAllAsync()
+            {
+                var hardware = await _context.Hardwares
+                    .Where(h => h.DateDeleted == null)
+                    .ToListAsync();
 
-        public async Task<HardwareDto?> GetByIdAsync(int id)
-        {
-            var hardware = await _context.Hardwares
-                .FirstOrDefaultAsync(h => h.Id == id && h.DateDeleted == null);
+                return _mapper.Map<IEnumerable<HardwareDto>>(hardware);
+            }
 
-            if (hardware == null) return null;
+            public async Task<HardwareDto?> GetByIdAsync(int id)
+            {
+                var hardware = await _context.Hardwares
+                    .FirstOrDefaultAsync(h => h.Id == id && h.DateDeleted == null);
 
-            return _mapper.Map<HardwareDto>(hardware);
-        }
+                if (hardware == null) return null;
 
-        public async Task<HardwareDto> CreateAsync(CreateHardwareDto hardwareDto)
-        {
-            var hardware = _mapper.Map<Hardware>(hardwareDto);
+                return _mapper.Map<HardwareDto>(hardware);
+            }
 
-            _context.Hardwares.Add(hardware);
-            await _context.SaveChangesAsync();
+            public async Task<HardwareDto> CreateAsync(CreateHardwareDto hardwareDto)
+            {
+                User? user = null;
 
-            return _mapper.Map<HardwareDto>(hardware);
-        }
+                if (!string.IsNullOrWhiteSpace(hardwareDto.AssignedTo))
+                {
+                    user = await _context.Users
+                        .FirstOrDefaultAsync(u => u.Email == hardwareDto.AssignedTo && u.DateDeleted == null);
 
-        public async Task<bool> UpdateAsync(int id, UpdateHardwareDto hardwareDto)
-        {
-            var hardware = await _context.Hardwares
-                .FirstOrDefaultAsync(h => h.Id == id && h.DateDeleted == null);
+                    if (user == null)
+                    {
+                        return null;
+                    }
+                }
 
-            if (hardware == null) return false;
+                var hardware = _mapper.Map<Hardware>(hardwareDto);
+                _context.Hardwares.Add(hardware);
+                await _context.SaveChangesAsync();
 
-            _mapper.Map(hardwareDto, hardware);
+                if (user != null)
+                {
+                    var rentalRecord = new CreateRentalRecordDto
+                    {
+                        UserId = user.Id,
+                        HardwareId = hardware.Id,
+                        RentedAt = DateTime.UtcNow
+                    };
 
-            await _context.SaveChangesAsync();
-            return true;
-        }
+                    await _rentalRecordService.CreateAsync(rentalRecord);
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var hardware = await _context.Hardwares
-                .FirstOrDefaultAsync(h => h.Id == id && h.DateDeleted == null);
+                    hardware.Status = Models.Enums.HardwareStatus.InUse;
+                    await _context.SaveChangesAsync();
+                }
 
-            if (hardware == null) return false;
+                return _mapper.Map<HardwareDto>(hardware);
+            }
 
-            _context.Hardwares.Remove(hardware);
-            await _context.SaveChangesAsync();
-            return true;
+            public async Task<bool> UpdateAsync(int id, UpdateHardwareDto hardwareDto)
+            {
+                var hardware = await _context.Hardwares
+                    .FirstOrDefaultAsync(h => h.Id == id && h.DateDeleted == null);
+
+                if (hardware == null) return false;
+
+                _mapper.Map(hardwareDto, hardware);
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            public async Task<bool> DeleteAsync(int id)
+            {
+                var hardware = await _context.Hardwares
+                    .FirstOrDefaultAsync(h => h.Id == id && h.DateDeleted == null);
+
+                if (hardware == null) return false;
+
+                _context.Hardwares.Remove(hardware);
+                await _context.SaveChangesAsync();
+                return true;
+            }
         }
     }
-}

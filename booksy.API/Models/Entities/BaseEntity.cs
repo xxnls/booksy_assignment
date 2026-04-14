@@ -9,7 +9,7 @@ namespace booksy.API.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Date Created is required")]
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
         public DateTime? DateModified { get; set; }

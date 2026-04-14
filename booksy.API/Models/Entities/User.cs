@@ -7,10 +7,10 @@ namespace booksy.API.Models.Entities
 {
     public class User : IdentityUser<int>
     {
-        [Required]
+        [Required(ErrorMessage = "Role is required")]
         public UserRole Role { get; set; } = UserRole.User;
 
-        [Required]
+        [Required(ErrorMessage = "Date Created is required")]
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
         public DateTime? DateModified { get; set; }
