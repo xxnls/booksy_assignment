@@ -41,6 +41,14 @@ namespace booksy.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
 
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
+        {
+            var result = await _userService.LoginAsync(dto);
+            if (result == null) return Unauthorized("Invalid email or password.");
+            return Ok(result);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateUserDto updateUserDto)
         {

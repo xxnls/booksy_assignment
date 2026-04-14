@@ -1,6 +1,13 @@
 import { api } from './api';
 
 export const UserService = {
+    async login(loginDto) {
+        return api.fetch('/users/login', {
+            method: 'POST',
+            body: JSON.stringify(loginDto),
+        });
+    },
+
     async getAll() {
         return api.fetch('/users');
     },

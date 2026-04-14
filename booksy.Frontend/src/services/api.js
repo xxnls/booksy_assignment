@@ -1,11 +1,15 @@
-const API_BASE_URL = 'http://localhost:5000/api'; // Or your actual .NET local port
+const API_BASE_URL = 'https://localhost:7227/api'; // Or your actual .NET local port
 
 export const api = {
     async fetch(endpoint, options = {}) {
+        const token = localStorage.getItem('token');
         const defaultHeaders = {
             'Content-Type': 'application/json',
-            // Add authorization headers here later if needed
         };
+
+        if (token) {
+            defaultHeaders['Authorization'] = `Bearer ${token}`;
+        }
 
         const config = {
             ...options,
@@ -26,7 +30,7 @@ export const api = {
             const data = await response.json().catch(() => null);
 
             if (!response.ok) {
-                const errorMessage = data?.title || data?.error || 'An API error occurred';
+                const errorMessage = data?.title || data?.error || data || 'An API error occurred';
                 throw new Error(errorMessage);
             }
 

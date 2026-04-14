@@ -5,6 +5,10 @@ using booksy.API.Models.Entities;
 using booksy.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace booksy.API.Services
 {
@@ -13,12 +17,14 @@ namespace booksy.API.Services
         private readonly AppDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
 
-        public UserService(AppDbContext context, UserManager<User> userManager, IMapper mapper)
+        public UserService(AppDbContext context, UserManager<User> userManager, IMapper mapper, IConfiguration config)
         {
             _context = context;
             _userManager = userManager;
             _mapper = mapper;
+            _config = config;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
@@ -86,6 +92,42 @@ namespace booksy.API.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null || user.DateDeleted != null) return null;
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+            if (!isPasswordValid) return null;
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var role = userRoles.FirstOrDefault() ?? "User";
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email ?? ""),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? ""));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddDays(7),
+                signingCredentials: creds
+            );
+
+            return new AuthResponseDto
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                User = _mapper.Map<UserDto>(user)
+            };
         }
     }
 }

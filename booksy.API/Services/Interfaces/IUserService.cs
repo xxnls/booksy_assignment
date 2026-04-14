@@ -9,5 +9,6 @@ namespace booksy.API.Services.Interfaces
         Task<UserDto> CreateAsync(CreateUserDto userDto);
         Task<bool> UpdateAsync(int id, UpdateUserDto userDto);
         Task<bool> DeleteAsync(int id);
+        Task<AuthResponseDto?> LoginAsync(LoginDto dto);
     }
 }

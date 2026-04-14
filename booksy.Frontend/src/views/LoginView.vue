@@ -1,28 +1,38 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { UserService } from '../services/user.service';
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
 const error = ref('');
 
-const handleLogin = () => {
-  if (!email.value.endsWith('@booksy.com')) {
-    error.value = 'Invalid domain. Please use @booksy.com';
-    return;
-  }
-  
+const handleLogin = async () => {
   error.value = '';
-  // In a real app, authenticate here. For now, we bypass.
-  router.push('/');
+  
+  try {
+    const response = await UserService.login({ email: email.value, password: password.value });
+    if (response && response.token) {
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      router.push('/');
+    }
+  } catch (err) {
+    error.value = err.message || 'Login failed. Please check your credentials.';
+  }
 };
 </script>
 
 <template>
   <div class="login-container">
     <div class="login-card">
-      <div class="logo-placeholder">[ Logo ]</div>
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+      </div>
       <h1>Welcome back</h1>
       
       <form @submit.prevent="handleLogin">
@@ -73,17 +83,17 @@ const handleLogin = () => {
   text-align: center;
 }
 
-.logo-placeholder {
+.logo-icon {
   width: 80px;
   height: 80px;
   background: var(--gray-light);
-  border: 1px dashed var(--gray-dark);
+  border: 1px solid var(--gray-dark);
+  border-radius: 50%;
   margin: 0 auto 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--gray-dark);
-  font-size: 14px;
 }
 
 h1 {

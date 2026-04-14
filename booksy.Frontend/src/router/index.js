@@ -9,19 +9,34 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView
+      component: LoginView,
+      meta: { guestOnly: true }
     },
     {
       path: '/',
       name: 'dashboard',
-      component: DashboardView
+      component: DashboardView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/admin',
       name: 'admin',
-      component: AdminView
+      component: AdminView,
+      meta: { requiresAuth: true }
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token');
+  
+  if (to.meta.requiresAuth && !token) {
+    next('/login');
+  } else if (to.meta.guestOnly && token) {
+    next('/');
+  } else {
+    next();
+  }
+});
 
 export default router
