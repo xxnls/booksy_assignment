@@ -12,7 +12,11 @@ const emit = defineEmits(['close', 'saved']);
 const form = ref({
   name: '',
   brand: '',
-  notes: ''
+  purchaseDate: '',
+  status: 'Available',
+  notes: '',
+  history: '',
+  assignedTo: ''
 });
 
 watch(() => props.isOpen, (newVal) => {
@@ -21,23 +25,31 @@ watch(() => props.isOpen, (newVal) => {
       form.value = {
         name: props.editItem.name,
         brand: props.editItem.brand,
-        notes: props.editItem.notes || ''
+        purchaseDate: props.editItem.purchaseDate || '',
+        status: props.editItem.status || 'Available',
+        notes: props.editItem.notes || '',
+        history: props.editItem.history || '',
+        assignedTo: '' // Not applicable for edit
       };
     } else {
-      form.value = { name: '', brand: '', notes: '' };
+      form.value = { name: '', brand: '', purchaseDate: '', status: 'Available', notes: '', history: '', assignedTo: '' };
     }
   }
 });
 
 const save = async () => {
   try {
+    const payload = { ...form.value };
+    if (!payload.purchaseDate) delete payload.purchaseDate;
+    if (!payload.assignedTo) delete payload.assignedTo;
+
     if (props.editItem) {
-      await HardwareService.update(props.editItem.id, form.value);
+      delete payload.assignedTo; // Ensure assignedTo isn't sent on update
+      await HardwareService.update(props.editItem.id, payload);
     } else {
-      await HardwareService.create(form.value);
+      await HardwareService.create(payload);
     }
     emit('saved');
-    form.value = { name: '', brand: '', notes: '' }; // reset
   } catch (error) {
     // Error is handled by global popup
   }
@@ -49,18 +61,48 @@ const save = async () => {
     <div class="modal-content" @click.stop>
       <h2>{{ editItem ? 'Edit Device' : 'Add New Device' }}</h2>
       <form @submit.prevent="save">
-        <div class="form-group">
-          <label>Name</label>
-          <input type="text" v-model="form.name" required />
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" v-model="form.name" required />
+          </div>
+          <div class="form-group">
+            <label>Brand</label>
+            <input type="text" v-model="form.brand" required />
+          </div>
         </div>
-        <div class="form-group">
-          <label>Brand</label>
-          <input type="text" v-model="form.brand" required />
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Purchase Date</label>
+            <input type="date" v-model="form.purchaseDate" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select v-model="form.status" required>
+              <option value="Available">Available</option>
+              <option value="InUse">In Use</option>
+              <option value="UnderMaintenance">Under Maintenance</option>
+              <option value="Retired">Retired</option>
+            </select>
+          </div>
         </div>
+
         <div class="form-group">
-          <label>Notes / Category</label>
+          <label>Category / Notes</label>
           <input type="text" v-model="form.notes" />
         </div>
+        
+        <div class="form-group">
+          <label>History</label>
+          <textarea v-model="form.history" rows="3"></textarea>
+        </div>
+
+        <div v-if="!editItem" class="form-group">
+          <label>Assign To (User Email)</label>
+          <input type="email" v-model="form.assignedTo" placeholder="Optional" />
+        </div>
+
         <div class="actions">
           <button type="button" class="btn-secondary" @click="emit('close')">Cancel</button>
           <button type="submit" class="btn-primary">Save</button>
@@ -87,13 +129,24 @@ const save = async () => {
 .modal-content {
   background: white;
   padding: 30px;
-  width: 400px;
+  width: 500px;
   border: 1px solid var(--border-color);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 h2 {
   margin-top: 0;
   margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
 }
 
 .form-group {
@@ -106,7 +159,7 @@ label {
   font-size: 14px;
 }
 
-input {
+input, select, textarea {
   width: 100%;
   padding: 8px;
   border: 1px solid var(--border-color);

@@ -1,24 +1,24 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
-import AddDeviceModal from '../components/AddDeviceModal.vue';
-import { HardwareService } from '../services/hardware.service';
+import AddUserModal from '../components/AddUserModal.vue';
+import { UserService } from '../services/user.service';
 
-const hardwareList = ref([]);
+const usersList = ref([]);
 const isModalOpen = ref(false);
 const itemToEdit = ref(null);
 
-const fetchHardware = async () => {
+const fetchUsers = async () => {
   try {
-    hardwareList.value = await HardwareService.getAll();
+    usersList.value = await UserService.getAll();
   } catch (error) {
-    console.error('Failed to fetch hardware:', error);
+    console.error('Failed to fetch users:', error);
   }
 };
 
-const handleDeviceSaved = () => {
+const handleUserSaved = () => {
   isModalOpen.value = false;
-  fetchHardware();
+  fetchUsers();
 };
 
 const handleAdd = () => {
@@ -31,26 +31,17 @@ const handleEdit = (item) => {
   isModalOpen.value = true;
 };
 
-const handleRepair = async (item) => {
-  if(confirm(`Send ${item.name} to repair?`)) {
-    try {
-      await HardwareService.update(item.id, { status: 'UnderMaintenance' });
-      await fetchHardware();
-    } catch(e) {}
-  }
-};
-
 const handleDelete = async (id) => {
-    if(confirm('Are you sure you want to delete this device?')) {
+    if(confirm('Are you sure you want to delete this user?')) {
         try {
-            await HardwareService.delete(id);
-            await fetchHardware();
+            await UserService.delete(id);
+            await fetchUsers();
         } catch(e) {}
     }
 }
 
 onMounted(() => {
-  fetchHardware();
+  fetchUsers();
 });
 </script>
 
@@ -60,8 +51,8 @@ onMounted(() => {
     
     <main class="content">
       <div class="header">
-        <h1>Hardware Management</h1>
-        <button class="btn-primary" @click="handleAdd">Add New Device</button>
+        <h1>User Management</h1>
+        <button class="btn-primary" @click="handleAdd">Add New User</button>
       </div>
 
       <div class="table-container">
@@ -69,48 +60,37 @@ onMounted(() => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Device Name</th>
-              <th>Brand</th>
-              <th>Category/Notes</th>
-              <th>Purchase Date</th>
-              <th>Date Added</th>
-              <th>History</th>
-              <th>Assigned To</th>
-              <th>Status</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Date Created</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in hardwareList" :key="item.id">
+            <tr v-for="item in usersList" :key="item.id">
               <td>#{{ item.id }}</td>
-              <td>{{ item.name }}</td>
-              <td>{{ item.brand }}</td>
-              <td>{{ item.notes || '-' }}</td>
-              <td>{{ item.purchaseDate ? new Date(item.purchaseDate).toLocaleDateString() : '-' }}</td>
+              <td>{{ item.email }}</td>
+              <td><span class="badge">{{ item.role }}</span></td>
               <td>{{ new Date(item.dateCreated).toLocaleDateString() }}</td>
-              <td>{{ item.history || '-' }}</td>
-              <td>{{ item.rentalRecord?.userEmail || '-' }}</td>
-              <td><span class="badge">{{ item.status }}</span></td>
               <td class="actions-cell">
                 <div class="action-buttons">
                   <button class="action-btn edit-btn" title="Edit" @click="handleEdit(item)">Edit</button>
-                  <button class="action-btn repair-btn" title="Send to Repair" @click="handleRepair(item)">Repair</button>
                   <button class="action-btn delete-btn" title="Delete" @click="handleDelete(item.id)">Delete</button>
                 </div>
               </td>
             </tr>
-            <tr v-if="hardwareList.length === 0">
-                <td colspan="10" class="empty-state">No hardware available or failed to load.</td>
+            <tr v-if="usersList.length === 0">
+                <td colspan="5" class="empty-state">No users available or failed to load.</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <AddDeviceModal 
+      <AddUserModal 
         :isOpen="isModalOpen" 
         :editItem="itemToEdit"
         @close="isModalOpen = false"
-        @saved="handleDeviceSaved"
+        @saved="handleUserSaved"
       />
     </main>
   </div>
@@ -225,12 +205,6 @@ th {
   background: #e8f0fe;
   border-color: #1a73e8;
   color: #1a73e8;
-}
-
-.action-btn.repair-btn:hover {
-  background: #fef7e0;
-  border-color: #f29900;
-  color: #f29900;
 }
 
 .empty-state {

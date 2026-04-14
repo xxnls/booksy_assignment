@@ -33,6 +33,7 @@ const handleLogout = () => {
       <router-link to="/" class="nav-link" active-class="active">Hardware List</router-link>
       <router-link to="/rentals" class="nav-link" active-class="active">My Rentals</router-link>
       <router-link v-if="isAdmin" to="/admin" class="nav-link" active-class="active">Admin Panel</router-link>
+      <router-link v-if="isAdmin" to="/users" class="nav-link" active-class="active">Users Panel</router-link>
     </nav>
     <button @click="handleLogout" class="btn-logout">Logout</button>
   </aside>

@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import AdminView from '../views/AdminView.vue'
 import RentalsView from '../views/RentalsView.vue'
+import UsersView from '../views/UsersView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,12 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: UsersView,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
